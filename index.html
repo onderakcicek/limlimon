@@ -123,6 +123,166 @@
             border-color: var(--green);
         }
 
+        #scenarioSelect {
+            background: #1f1f2e;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 32px 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='%23a1a1aa' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 18px;
+        }
+        #scenarioSelect:hover {
+            border-color: var(--border-hover);
+        }
+        #scenarioSelect.active-scenario {
+            border-color: var(--purple);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+            background-color: rgba(139, 92, 246, 0.1);
+            color: #d8b4fe;
+        }
+        #scenarioSelect.modified-scenario {
+            border-color: var(--orange);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+            background-color: rgba(245, 158, 11, 0.15);
+            color: #fde047;
+        }
+        #scenarioSelect option {
+            background: #181824 !important;
+            color: var(--text-primary) !important;
+            font-weight: 500;
+        }
+        #scenarioSelect optgroup {
+            background: #181824 !important;
+            color: var(--text-secondary) !important;
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        /* ── CUSTOM MODAL STYLES ── */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(8, 8, 12, 0.75);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+        }
+        .modal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            width: 520px;
+            max-width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.15);
+            transform: translateY(20px);
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.2s ease;
+            overflow: hidden;
+        }
+        .modal-overlay.active .modal-card {
+            transform: translateY(0);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
+        }
+        .modal-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-primary);
+        }
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+        .modal-close:hover { color: var(--text-primary); }
+        
+        /* Split view */
+        .modal-split-container {
+            display: flex;
+            width: 100%;
+        }
+        .modal-split-left, .modal-split-right {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 12px;
+            min-height: 220px;
+        }
+        .modal-split-left {
+            background: rgba(139, 92, 246, 0.015);
+            border-right: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .modal-split-right {
+            background: rgba(16, 185, 129, 0.015);
+        }
+        .modal-input {
+            width: 100%;
+            background: #181824;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .modal-input:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.15);
+        }
+        
+        .action-btn.new-btn {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #a7f3d0;
+        }
+        .action-btn.new-btn:hover {
+            background: rgba(16, 185, 129, 0.25);
+            border-color: var(--green);
+        }
+        .action-btn.update-btn {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #d8b4fe;
+        }
+        .action-btn.update-btn:hover {
+            background: rgba(139, 92, 246, 0.25);
+            border-color: var(--purple);
+        }
+
         /* ── WORKSPACE (INDEPENDENT DOUBLE SCROLL) ── */
         .workspace {
             display: flex;
@@ -529,13 +689,33 @@
                 <p class="header-subtitle">Satış planı, reçete kırılımları ve kârlılık matrisi</p>
             </div>
         </div>
-        <!-- Share Action Controls -->
+        <!-- Share & Scenario Action Controls -->
         <div class="header-actions">
-            <button class="action-btn share-link-btn" onclick="copyShareLink()">
-                🔗 Verileri Paylaş (Link)
-            </button>
-            <button class="action-btn snapshot-btn" onclick="saveSnapshot()">
-                📸 Görsel Kaydet (PNG)
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Senaryo:</span>
+                <select id="scenarioSelect" onchange="loadScenario(this.value)">
+                    <option value="">Seçiniz...</option>
+                    <optgroup label="Sistem Şablonları">
+                        <option value="standard">📋 Standart İş Günü</option>
+                        <option value="weekend">🔥 Hafta Sonu Yoğunluğu</option>
+                        <option value="bulk">📦 Toptan Sipariş Odaklı</option>
+                    </optgroup>
+                    <optgroup label="Özel Senaryolarım" id="customScenarios">
+                        <!-- Custom options dynamically injected -->
+                    </optgroup>
+                </select>
+                <button id="editScenarioBtn" class="action-btn" onclick="renameActiveScenario()" style="display: none; padding: 8px 10px; font-size: 12px; background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.3); color: #93c5fd;" title="Senaryo Adını Değiştir">
+                    ✏️
+                </button>
+                <button id="deleteScenarioBtn" class="action-btn" onclick="deleteActiveScenario()" style="display: none; padding: 8px 10px; font-size: 12px; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #fca5a5;" title="Aktif Senaryoyu Sil">
+                    🗑️
+                </button>
+                <button class="action-btn" onclick="saveCustomScenario()" style="padding: 8px 10px; font-size: 12px; background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.3); color: #c084fc;" title="Mevcut Ayarları Özel Senaryo Olarak Kaydet">
+                    💾 Kaydet
+                </button>
+            </div>
+            <button class="action-btn share-link-btn" onclick="openShareModal()" style="background: rgba(6, 182, 212, 0.15); border-color: rgba(6, 182, 212, 0.3); color: #a5f3fc;" title="Verileri Paylaş veya Görsel Kaydet">
+                📤 Paylaş & Kaydet
             </button>
         </div>
     </header>
@@ -878,6 +1058,98 @@
         <span id="toastIcon">✅</span> <span id="toastMsg">Panoya kopyalandı!</span>
     </div>
 
+    <!-- Custom Modal Dialog -->
+    <div id="modalOverlay" class="modal-overlay" style="display: none;" onclick="if(event.target === this) closeModal()">
+        <div class="modal-card" id="modalCard">
+            <div class="modal-header">
+                <span class="modal-title">📋 Senaryo Kaydet</span>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-split-container">
+                <!-- Left Column: Update -->
+                <div class="modal-split-left" id="modalSplitLeft">
+                    <span style="font-size: 24px;">🔄</span>
+                    <span style="font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; text-align: center;" id="modalUpdateName">Mevcut Planı</span>
+                    <p style="font-size: 10px; color: var(--text-muted); text-align: center;">Mevcut sürgü ayarlarını bu senaryonun üzerine yazar.</p>
+                    <button id="modalBtnUpdate" class="action-btn update-btn" style="width: 100%; justify-content: center;" onclick="submitUpdateExisting()">Güncelle</button>
+                </div>
+                <!-- Right Column: Save New -->
+                <div class="modal-split-right" id="modalSplitRight">
+                    <span style="font-size: 24px;">⭐</span>
+                    <span style="font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; text-align: center;">Yeni Farklı Kaydet</span>
+                    <input type="text" id="scenarioNameInput" class="modal-input" placeholder="Yeni senaryo adı..." style="width: 100%;">
+                    <p id="modalDesc" class="modal-desc" style="font-size: 10px; margin-top: 4px; text-align: center; display: none;"></p>
+                    <button id="modalBtnNew" class="action-btn new-btn" style="width: 100%; justify-content: center;" onclick="submitSaveNew()">Yeni Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share/Export Modal Dialog -->
+    <div id="shareOverlay" class="modal-overlay" style="display: none;" onclick="if(event.target === this) closeShareModal()">
+        <div class="modal-card" style="width: 400px;">
+            <div class="modal-header">
+                <span class="modal-title">📤 Raporu Paylaş / Kaydet</span>
+                <button class="modal-close" onclick="closeShareModal()">&times;</button>
+            </div>
+            <div style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+                <!-- Link Share Section -->
+                <div>
+                    <label class="modal-label" style="display: block; font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px;">🔗 Paylaşım Linki</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="shareUrlInput" class="modal-input" readonly style="flex: 1; background: #101017; font-family: monospace; font-size: 11px;">
+                        <button class="action-btn share-link-btn" onclick="copyShareLinkFromModal()" style="white-space: nowrap; font-size: 12px; padding: 10px 14px;">Kopyala</button>
+                    </div>
+                    <p style="font-size: 10px; color: var(--text-muted); margin-top: 6px; line-height: 1.4;">Bu link, mevcut tüm ayarlarınızı kodlanmış olarak saklar.</p>
+                </div>
+                <hr style="border: 0; border-top: 1px solid rgba(255, 255, 255, 0.05); margin: 4px 0;">
+                <!-- Image Export Section -->
+                <div>
+                    <label class="modal-label" style="display: block; font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px;">📸 Rapor Görseli (PNG)</label>
+                    <p style="font-size: 10px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.4;">Tüm paneli tek bir geniş görsel rapor halinde bilgisayarınıza indirir.</p>
+                    <button id="modalSnapshotBtn" class="action-btn snapshot-btn" style="width: 100%; justify-content: center; font-size: 12px; padding: 10px;" onclick="saveSnapshotFromModal()">
+                        📸 Görsel Kaydet (PNG)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rename Modal Dialog -->
+    <div id="renameOverlay" class="modal-overlay" style="display: none;" onclick="if(event.target === this) closeRenameModal()">
+        <div class="modal-card" style="width: 320px;">
+            <div class="modal-header">
+                <span class="modal-title">✏️ Senaryo Adlandır</span>
+                <button class="modal-close" onclick="closeRenameModal()">&times;</button>
+            </div>
+            <div style="padding: 20px;">
+                <label class="modal-label" style="display: block; font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px;" for="renameInput">Yeni İsim</label>
+                <input type="text" id="renameInput" class="modal-input" placeholder="Senaryo adı...">
+            </div>
+            <div class="modal-footer" style="padding: 12px 20px; display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid rgba(255, 255, 255, 0.05); background: rgba(255, 255, 255, 0.01);">
+                <button class="action-btn cancel-btn" style="padding: 8px 12px; font-size: 12px; background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary);" onclick="closeRenameModal()">Vazgeç</button>
+                <button class="action-btn update-btn" style="padding: 8px 12px; font-size: 12px;" onclick="submitRenameScenario()">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Dialog -->
+    <div id="confirmOverlay" class="modal-overlay" style="display: none;" onclick="if(event.target === this) closeConfirm()">
+        <div class="modal-card" style="width: 320px;">
+            <div class="modal-header">
+                <span class="modal-title" id="confirmTitle">⚠️ Onay</span>
+                <button class="modal-close" onclick="closeConfirm()">&times;</button>
+            </div>
+            <div style="padding: 20px;">
+                <p id="confirmMsg" style="font-size: 12px; color: var(--text-secondary); text-align: center; line-height: 1.5; margin: 0;"></p>
+            </div>
+            <div class="modal-footer" id="confirmFooter" style="padding: 12px 20px; display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid rgba(255, 255, 255, 0.05); background: rgba(255, 255, 255, 0.01);">
+                <button class="action-btn cancel-btn" style="padding: 8px 12px; font-size: 12px; background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary);" onclick="closeConfirm()">İptal</button>
+                <button id="confirmSubmitBtn" class="action-btn" style="padding: 8px 12px; font-size: 12px; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #fca5a5;">Evet, Sil</button>
+            </div>
+        </div>
+    </div>
+
 <script>
     const SMALL_ML = 250, LARGE_ML = 400, LITRE_ML = 1000, LITRE5_ML = 5000, LITRE20_ML = 20000;
 
@@ -977,6 +1249,83 @@
         }, 3000);
     }
 
+    function openShareModal() {
+        const overlay = S('shareOverlay');
+        const urlInput = S('shareUrlInput');
+        if (!overlay || !urlInput) return;
+        
+        urlInput.value = generateShareUrl();
+        
+        overlay.style.display = 'flex';
+        setTimeout(() => overlay.classList.add('active'), 10);
+    }
+    
+    function closeShareModal() {
+        const overlay = S('shareOverlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+            setTimeout(() => overlay.style.display = 'none', 200);
+        }
+    }
+    
+    function copyShareLinkFromModal() {
+        const urlInput = S('shareUrlInput');
+        if (urlInput) {
+            urlInput.select();
+            urlInput.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(urlInput.value).then(() => {
+                showToast('Bağlantı kopyalandı!');
+            }).catch(err => {
+                console.error(err);
+            });
+        }
+    }
+    
+    function saveSnapshotFromModal() {
+        closeShareModal();
+        setTimeout(() => {
+            saveSnapshot();
+        }, 250);
+    }
+    
+    function showCustomConfirm(title, msg, onConfirm, isAlert = false) {
+        S('confirmTitle').textContent = title;
+        S('confirmMsg').textContent = msg;
+        
+        const overlay = S('confirmOverlay');
+        overlay.style.display = 'flex';
+        setTimeout(() => overlay.classList.add('active'), 10);
+        
+        const submitBtn = S('confirmSubmitBtn');
+        submitBtn.onclick = () => {
+            onConfirm();
+            closeConfirm();
+        };
+        
+        const cancelBtn = S('confirmOverlay').querySelector('.cancel-btn');
+        if (isAlert) {
+            cancelBtn.style.display = 'none';
+            submitBtn.textContent = 'Tamam';
+            submitBtn.style.background = 'rgba(139, 92, 246, 0.15)';
+            submitBtn.style.borderColor = 'rgba(139, 92, 246, 0.3)';
+            submitBtn.style.color = '#d8b4fe';
+        } else {
+            cancelBtn.style.display = 'inline-flex';
+            submitBtn.textContent = 'Evet, Sil';
+            submitBtn.style.background = 'rgba(239, 68, 68, 0.15)';
+            submitBtn.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+            submitBtn.style.color = '#fca5a5';
+        }
+    }
+    
+    function closeConfirm() {
+        const overlay = S('confirmOverlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+            setTimeout(() => overlay.style.display = 'none', 200);
+        }
+    }
+
     function copyShareLink() {
         const shareUrl = generateShareUrl();
         navigator.clipboard.writeText(shareUrl).then(() => {
@@ -1072,8 +1421,68 @@
         }, 150);
     }
 
+    function checkScenarioModified() {
+        if (!activeScenarioKey) return false;
+        
+        let originalVals = null;
+        if (activeScenarioKey.startsWith('custom_')) {
+            const customName = activeScenarioKey.replace('custom_', '');
+            try {
+                const saved = localStorage.getItem('limon_custom_scenarios');
+                if (saved) {
+                    const customScenarios = JSON.parse(saved);
+                    originalVals = customScenarios[customName];
+                }
+            } catch(e) {}
+        } else {
+            originalVals = SCENARIOS[activeScenarioKey];
+        }
+
+        if (!originalVals) return false;
+
+        for (const id of Object.values(urlMap)) {
+            const el = S(id);
+            if (el && String(el.value) !== String(originalVals[id])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function calculate() {
         saveParamsToLocalStorage();
+        if (typeof isLoadingScenario !== 'undefined' && !isLoadingScenario) {
+            const selectEl = S('scenarioSelect');
+            if (selectEl) {
+                if (activeScenarioKey) {
+                    const modified = checkScenarioModified();
+                    if (modified) {
+                        selectEl.classList.remove('active-scenario');
+                        selectEl.classList.add('modified-scenario');
+                    } else {
+                        selectEl.classList.remove('modified-scenario');
+                        selectEl.classList.add('active-scenario');
+                    }
+                } else {
+                    selectEl.classList.remove('active-scenario');
+                    selectEl.classList.remove('modified-scenario');
+                    selectEl.value = "";
+                }
+            }
+        }
+
+        // Show/hide edit and delete scenario buttons
+        const editBtn = S('editScenarioBtn');
+        const deleteBtn = S('deleteScenarioBtn');
+        if (editBtn && deleteBtn) {
+            if (activeScenarioKey && activeScenarioKey.startsWith('custom_')) {
+                editBtn.style.display = 'inline-flex';
+                deleteBtn.style.display = 'inline-flex';
+            } else {
+                editBtn.style.display = 'none';
+                deleteBtn.style.display = 'none';
+            }
+        }
         const sc = +sliders.smallCount.value;
         const sp = +sliders.smallPrice.value;
 
@@ -1316,9 +1725,370 @@
         S('tableBody').innerHTML = tableHtml;
     }
 
+    // Pre-configured Scenarios Data
+    const SCENARIOS = {
+        standard: {
+            smallCount: 20, smallPrice: 60,
+            largeCount: 30, largePrice: 80,
+            litreCount: 15, litrePrice: 150,
+            litre5Count: 4, litre5Price: 300,
+            litre20Count: 0, litre20Price: 0,
+            lemonKgPrice: 100, sugarKgPrice: 50, basePackagingCost: 6,
+            lemonPerL: 300, sugarPerL: 50, waterCostPerL: 10,
+            icePct: 10, wastePct: 8, fixedCost: 200
+        },
+        weekend: {
+            smallCount: 120, smallPrice: 70,
+            largeCount: 80, largePrice: 90,
+            litreCount: 30, litrePrice: 160,
+            litre5Count: 8, litre5Price: 320,
+            litre20Count: 1, litre20Price: 2000,
+            lemonKgPrice: 100, sugarKgPrice: 50, basePackagingCost: 6,
+            lemonPerL: 300, sugarPerL: 50, waterCostPerL: 10,
+            icePct: 15, wastePct: 10, fixedCost: 350
+        },
+        bulk: {
+            smallCount: 10, smallPrice: 60,
+            largeCount: 10, largePrice: 80,
+            litreCount: 25, litrePrice: 140,
+            litre5Count: 12, litre5Price: 280,
+            litre20Count: 4, litre20Price: 1900,
+            lemonKgPrice: 100, sugarKgPrice: 50, basePackagingCost: 6,
+            lemonPerL: 300, sugarPerL: 50, waterCostPerL: 10,
+            icePct: 10, wastePct: 5, fixedCost: 150
+        }
+    };
+
+    let isLoadingScenario = false;
+    let activeScenarioKey = "";
+
+    function loadScenario(key) {
+        activeScenarioKey = key;
+        const selectEl = S('scenarioSelect');
+        
+        if (!key) {
+            selectEl.classList.remove('active-scenario');
+            localStorage.setItem('limon_active_scenario', "");
+            return;
+        }
+
+        selectEl.classList.add('active-scenario');
+        localStorage.setItem('limon_active_scenario', key);
+        
+        let data = null;
+        let displayName = '';
+
+        if (key.startsWith('custom_')) {
+            const customName = key.replace('custom_', '');
+            try {
+                const saved = localStorage.getItem('limon_custom_scenarios');
+                if (saved) {
+                    const customScenarios = JSON.parse(saved);
+                    data = customScenarios[customName];
+                    displayName = customName;
+                }
+            } catch(e) {
+                console.error(e);
+            }
+        } else {
+            data = SCENARIOS[key];
+            displayName = selectEl.options[selectEl.selectedIndex].text;
+        }
+
+        if (!data) return;
+        
+        isLoadingScenario = true;
+        for (const [id, val] of Object.entries(data)) {
+            const el = S(id);
+            if (el) el.value = val;
+        }
+        calculate();
+        isLoadingScenario = false;
+
+        showToast(`"${displayName}" başarıyla yüklendi!`, '📋');
+    }
+
+    function closeModal() {
+        const modal = S('modalOverlay');
+        if (modal) {
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 200);
+        }
+    }
+
+    function closeModal() {
+        const modal = S('modalOverlay');
+        if (modal) {
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 200);
+        }
+    }
+
+    function saveCustomScenario() {
+        // Check if there is an active scenario and it's NOT modified
+        if (activeScenarioKey) {
+            const modified = checkScenarioModified();
+            if (!modified) {
+                showToast('Senaryo zaten güncel, değişiklik yok.', 'ℹ️');
+                return;
+            }
+        }
+
+        const modal = S('modalOverlay');
+        const card = S('modalCard');
+        const nameInput = S('scenarioNameInput');
+        const leftCol = S('modalSplitLeft');
+
+        if (!modal) return;
+
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+
+        if (activeScenarioKey && activeScenarioKey.startsWith('custom_')) {
+            card.style.width = '520px';
+            leftCol.style.display = 'flex';
+            const currentCustomName = activeScenarioKey.replace('custom_', '');
+            nameInput.value = currentCustomName + " 2";
+            S('modalUpdateName').textContent = `"${currentCustomName}" Güncelle`;
+        } else {
+            card.style.width = '320px';
+            leftCol.style.display = 'none';
+
+            if (activeScenarioKey) {
+                const selectEl = S('scenarioSelect');
+                const rawText = selectEl.options[selectEl.selectedIndex].text;
+                const cleanName = rawText.replace(/^[^\s]+\s/, ''); // Strip icon/emoji
+                nameInput.value = cleanName + " (Kopya)";
+            } else {
+                nameInput.value = "Özel Senaryo 1";
+            }
+        }
+        
+        setTimeout(() => {
+            nameInput.focus();
+            nameInput.select();
+        }, 100);
+    }
+
+    function submitUpdateExisting() {
+        if (!activeScenarioKey || !activeScenarioKey.startsWith('custom_')) return;
+        const customName = activeScenarioKey.replace('custom_', '');
+
+        const currentVals = {};
+        for (const id of Object.values(urlMap)) {
+            const el = S(id);
+            if (el) currentVals[id] = el.value;
+        }
+
+        let customScenarios = {};
+        try {
+            const saved = localStorage.getItem('limon_custom_scenarios');
+            if (saved) customScenarios = JSON.parse(saved);
+        } catch(e) {}
+
+        customScenarios[customName] = currentVals;
+        localStorage.setItem('limon_custom_scenarios', JSON.stringify(customScenarios));
+
+        showToast(`"${customName}" başarıyla güncellendi!`, '💾');
+        closeModal();
+        calculate();
+    }
+
+    function submitSaveNew() {
+        const nameInput = S('scenarioNameInput');
+        const name = nameInput ? nameInput.value.trim() : '';
+        if (!name) {
+            showCustomConfirm('Hata', 'Lütfen senaryo adı girin!', () => {}, true);
+            return;
+        }
+
+        const currentVals = {};
+        for (const id of Object.values(urlMap)) {
+            const el = S(id);
+            if (el) currentVals[id] = el.value;
+        }
+
+        let customScenarios = {};
+        try {
+            const saved = localStorage.getItem('limon_custom_scenarios');
+            if (saved) customScenarios = JSON.parse(saved);
+        } catch(e) {}
+
+        // Enforce 5 custom scenario limit
+        const currentCount = Object.keys(customScenarios).length;
+        if (!customScenarios[name] && currentCount >= 5) {
+            showCustomConfirm(
+                '⚠️ Limit Aşıldı',
+                'Maksimum 5 özel senaryo limitine ulaştınız. Yenisini eklemek için lütfen eskilerden birini silin.',
+                () => {},
+                true
+            );
+            return;
+        }
+
+        customScenarios[name] = currentVals;
+        localStorage.setItem('limon_custom_scenarios', JSON.stringify(customScenarios));
+
+        renderScenarioDropdown();
+
+        activeScenarioKey = `custom_${name}`;
+        localStorage.setItem('limon_active_scenario', activeScenarioKey);
+
+        const selectEl = S('scenarioSelect');
+        if (selectEl) selectEl.value = activeScenarioKey;
+
+        showToast(`"${name}" yeni senaryo olarak kaydedildi!`, '💾');
+        closeModal();
+        calculate();
+    }
+
+    function deleteActiveScenario() {
+        if (!activeScenarioKey || !activeScenarioKey.startsWith('custom_')) return;
+        const name = activeScenarioKey.replace('custom_', '');
+        
+        showCustomConfirm(
+            '⚠️ Senaryo Sil',
+            `"${name}" senaryosunu kalıcı olarak silmek istediğinize emin misiniz?`,
+            () => {
+                let customScenarios = {};
+                try {
+                    const saved = localStorage.getItem('limon_custom_scenarios');
+                    if (saved) customScenarios = JSON.parse(saved);
+                } catch(e) {}
+
+                delete customScenarios[name];
+                localStorage.setItem('limon_custom_scenarios', JSON.stringify(customScenarios));
+
+                activeScenarioKey = "";
+                localStorage.setItem('limon_active_scenario', "");
+
+                const selectEl = S('scenarioSelect');
+                if (selectEl) {
+                    selectEl.value = "";
+                    selectEl.classList.remove('active-scenario');
+                    selectEl.classList.remove('modified-scenario');
+                }
+
+                renderScenarioDropdown();
+                calculate();
+                showToast('Senaryo silindi.', '🗑️');
+            }
+        );
+    }
+
+    function renameActiveScenario() {
+        if (!activeScenarioKey || !activeScenarioKey.startsWith('custom_')) return;
+        const oldName = activeScenarioKey.replace('custom_', '');
+        
+        const overlay = S('renameOverlay');
+        const input = S('renameInput');
+        if (!overlay || !input) return;
+        
+        input.value = oldName;
+        overlay.style.display = 'flex';
+        setTimeout(() => overlay.classList.add('active'), 10);
+        
+        setTimeout(() => {
+            input.focus();
+            input.select();
+        }, 100);
+    }
+    
+    function closeRenameModal() {
+        const overlay = S('renameOverlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+            setTimeout(() => overlay.style.display = 'none', 200);
+        }
+    }
+    
+    function submitRenameScenario() {
+        const input = S('renameInput');
+        const newName = input ? input.value.trim() : '';
+        if (!newName) {
+            showCustomConfirm('Hata', 'Lütfen geçerli bir senaryo ismi girin!', () => {}, true);
+            return;
+        }
+        
+        const oldName = activeScenarioKey.replace('custom_', '');
+        if (newName === oldName) {
+            closeRenameModal();
+            return;
+        }
+        
+        let customScenarios = {};
+        try {
+            const saved = localStorage.getItem('limon_custom_scenarios');
+            if (saved) customScenarios = JSON.parse(saved);
+        } catch(e) {}
+        
+        if (customScenarios[newName]) {
+            showCustomConfirm('Hata', 'Bu isimde bir senaryo zaten var!', () => {}, true);
+            return;
+        }
+        
+        customScenarios[newName] = customScenarios[oldName];
+        delete customScenarios[oldName];
+        localStorage.setItem('limon_custom_scenarios', JSON.stringify(customScenarios));
+        
+        activeScenarioKey = `custom_${newName}`;
+        localStorage.setItem('limon_active_scenario', activeScenarioKey);
+        
+        renderScenarioDropdown();
+        const selectEl = S('scenarioSelect');
+        if (selectEl) selectEl.value = activeScenarioKey;
+        
+        showToast('Senaryo adı güncellendi.', '✏️');
+        closeRenameModal();
+        calculate();
+    }
+
+    function renderScenarioDropdown() {
+        const customGroup = S('customScenarios');
+        if (!customGroup) return;
+
+        customGroup.innerHTML = '';
+
+        let customScenarios = {};
+        try {
+            const saved = localStorage.getItem('limon_custom_scenarios');
+            if (saved) customScenarios = JSON.parse(saved);
+        } catch(e) {
+            console.error(e);
+        }
+
+        for (const name of Object.keys(customScenarios)) {
+            const opt = document.createElement('option');
+            opt.value = `custom_${name}`;
+            opt.textContent = `⭐ ${name}`;
+            customGroup.appendChild(opt);
+        }
+    }
+
     // Init Logic
+    renderScenarioDropdown();
     loadParamsFromLocalStorage();
     loadParamsFromUrl(); // URL params take priority over local storage
+    
+    // Restore active scenario selection if exists, but only if URL has no parameters
+    const hasUrlParams = window.location.search && window.location.search.length > 1;
+    if (hasUrlParams) {
+        activeScenarioKey = "";
+        localStorage.setItem('limon_active_scenario', "");
+    } else {
+        const savedActiveKey = localStorage.getItem('limon_active_scenario');
+        if (savedActiveKey) {
+            activeScenarioKey = savedActiveKey;
+            const selectEl = S('scenarioSelect');
+            if (selectEl) {
+                selectEl.value = savedActiveKey;
+                if (savedActiveKey !== "") {
+                    selectEl.classList.add('active-scenario');
+                }
+            }
+        }
+    }
+    
     ids.forEach(id => sliders[id].addEventListener('input', calculate));
     calculate();
 </script>
