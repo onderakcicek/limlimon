@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limonata Ticari Kar & Üretim Analiz Paneli</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #08080c;
+            --bg-secondary: #0f0f15;
+            --bg-card: #14141c;
+            --bg-card-hover: #1b1b26;
+            --border-color: #222230;
+            --border-hover: #323246;
+            --text-primary: #f1f1f6;
+            --text-secondary: #a0a0ba;
+            --text-muted: #646480;
+            --green: #10b981;
+            --blue: #3b82f6;
+            --purple: #8b5cf6;
+            --orange: #f59e0b;
+            --cyan: #06b6d4;
+            --red: #ef4444;
+            --yellow: #eab308;
+            --slider-track: #1f1f2e;
+
+            /* Base font size variables for scale */
+            --scale-left: 1.0;
+            --scale-right: 1.0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── HEADER ── */
+        header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+            flex-shrink: 0;
+        }
+        .header-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-logo { font-size: 20px; }
+        .header-title {
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .header-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        /* ── WORKSPACE (INDEPENDENT DOUBLE SCROLL) ── */
+        .workspace {
+            display: flex;
+            flex: 1;
+            width: 100%;
+            max-width: 100%;
+            height: calc(100vh - 60px);
+            margin: 0 auto;
+            gap: 16px;
+            padding: 16px;
+            overflow: hidden;
+        }
+
+        /* ── LEFT PANEL (SCROLLABLE CONTROLS) ── */
+        .controls-panel {
+            width: 360px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            height: 100%;
+            overflow-y: auto;
+            padding-right: 6px;
+            
+            /* Regional Scale Font Sizes */
+            --fs-base: calc(12.5px * var(--scale-left));
+            --fs-sm: calc(11px * var(--scale-left));
+            --fs-title: calc(12px * var(--scale-left));
+        }
+
+        /* ── RIGHT PANEL (SCROLLABLE DASHBOARD) ── */
+        .dashboard-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            height: 100%;
+            overflow-y: auto;
+            padding-right: 6px;
+            min-width: 0;
+
+            /* Regional Scale Font Sizes */
+            --fs-base: calc(12.5px * var(--scale-right));
+            --fs-sm: calc(11px * var(--scale-right));
+            --fs-title: calc(12px * var(--scale-right));
+            --fs-metric-val: calc(24px * var(--scale-right));
+        }
+
+        /* Custom Scrollbars */
+        .controls-panel::-webkit-scrollbar,
+        .dashboard-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        .controls-panel::-webkit-scrollbar-track,
+        .dashboard-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.01);
+            border-radius: 3px;
+        }
+        .controls-panel::-webkit-scrollbar-thumb,
+        .dashboard-panel::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+        .controls-panel::-webkit-scrollbar-thumb:hover,
+        .dashboard-panel::-webkit-scrollbar-thumb:hover {
+            background: var(--border-hover);
+        }
+
+        /* ── PANEL CARDS ── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            transition: border-color 0.2s;
+        }
+        .card:hover { border-color: var(--border-hover); }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            padding-bottom: 8px;
+        }
+        .card-title {
+            font-size: var(--fs-title);
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .card-title-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+        }
+
+        /* Regional Zoom Buttons in Card Headers */
+        .panel-zoom-ctrl {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        .panel-zoom-label {
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .panel-zoom-btn {
+            background: #20202c;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .panel-zoom-btn:hover { background: var(--border-hover); }
+
+        /* ── SLIDERS & FORM INPUTS ── */
+        .input-group-title {
+            font-size: var(--fs-sm);
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            margin-top: 12px;
+            border-left: 2px solid var(--border-color);
+            padding-left: 6px;
+        }
+        .input-group-title:first-of-type { margin-top: 0; }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 5px 0;
+        }
+        .slider-label {
+            font-size: var(--fs-base);
+            color: var(--text-muted);
+            min-width: 110px;
+            white-space: nowrap;
+        }
+        .slider-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .slider-value {
+            font-size: var(--fs-base);
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: right;
+            min-width: 55px;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none; appearance: none; width: 100%; height: 4px;
+            background: var(--slider-track); border-radius: 4px; outline: none; cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%;
+            background: #e0e0ec; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* ── REÇETE KANAL KIRILIMI WIDGET ── */
+        .recipe-breakdown-card {
+            background: rgba(234, 179, 8, 0.02);
+            border: 1px dashed rgba(234, 179, 8, 0.15);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-top: 8px;
+        }
+        .breakdown-title {
+            font-size: var(--fs-sm);
+            font-weight: 700;
+            color: var(--yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--fs-base);
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            color: var(--text-secondary);
+        }
+        .breakdown-row:last-of-type {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-top: 4px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* ── METRICS GRID (4 COLUMNS) ── */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 106px;
+        }
+        .metric-label {
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .metric-value {
+            font-size: var(--fs-metric-val);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-top: 4px;
+        }
+        .metric-detail {
+            font-size: var(--fs-sm);
+            color: var(--text-muted);
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+
+        /* Colors for metric cards */
+        .metric-card.net-profit { border-color: rgba(16, 185, 129, 0.2); background: linear-gradient(135deg, var(--bg-card), rgba(16, 185, 129, 0.03)); }
+        .metric-card.net-profit .metric-value { color: var(--green); }
+        .metric-card.revenue { border-color: rgba(59, 130, 246, 0.2); }
+        .metric-card.revenue .metric-value { color: var(--blue); }
+        .metric-card.costs { border-color: rgba(245, 158, 11, 0.2); }
+        .metric-card.costs .metric-value { color: var(--orange); }
+        .metric-card.production { border-color: rgba(234, 179, 8, 0.2); }
+        .metric-card.production .metric-value { color: var(--yellow); }
+
+        /* ── BAR VISUALIZER ── */
+        .visualizer-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .bar-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .bar-track {
+            width: 100%;
+            height: 16px;
+            background: #101017;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            border: 1px solid var(--border-color);
+        }
+        .bar-segment {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        .bar-segment.lemonade-net { background: linear-gradient(90deg, #0e7490, #06b6d4); }
+        .bar-segment.ice { background: linear-gradient(90deg, #6366f1, #818cf8); }
+        .bar-segment.waste { 
+            background: repeating-linear-gradient(
+                -45deg,
+                rgba(239, 68, 68, 0.35),
+                rgba(239, 68, 68, 0.35) 4px,
+                rgba(239, 68, 68, 0.15) 4px,
+                rgba(239, 68, 68, 0.15) 8px
+            );
+            border-left: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* External Lejantlar */
+        .bar-legend {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 2px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: var(--fs-sm);
+            color: var(--text-secondary);
+        }
+        .legend-color {
+            width: 6px;
+            height: 6px;
+            border-radius: 2px;
+        }
+        .legend-color.lemonade-net { background: var(--cyan); }
+        .legend-color.ice { background: var(--purple); }
+        .legend-color.waste { background: var(--red); }
+        .legend-val {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* ── TABLE CARD & OVERFLOW HANDLING ── */
+        .table-card-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 860px; /* Increased to fit profit margin column */
+        }
+        th {
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.01);
+        }
+        td {
+            padding: 10px 12px;
+            font-size: var(--fs-base);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        }
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.015);
+        }
+        .table-badge {
+            font-size: calc(9.5px * var(--scale-right));
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .table-badge.sm { background: var(--blue-bg); color: var(--blue); }
+        .table-badge.lg { background: var(--purple-bg); color: var(--purple); }
+        .table-badge.lt { background: var(--orange-bg); color: var(--orange); }
+        .table-badge.lt5 { background: rgba(244,63,94,0.1); color: #fda4af; }
+        .table-badge.lt20 { background: rgba(16, 185, 129, 0.15); color: #a7f3d0; }
+
+        /* ── RESPONSIVE ADAPTATIONS (MOBILE STACKING) ── */
+        @media (max-width: 1100px) {
+            body { overflow-y: auto; height: auto; }
+            .workspace { flex-direction: column; height: auto; overflow: visible; }
+            .controls-panel { width: 100%; height: auto; overflow: visible; }
+            .dashboard-panel { width: 100%; height: auto; overflow: visible; }
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .metrics-grid { grid-template-columns: 1fr; }
+            .visualizer-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── HEADER ── -->
+    <header>
+        <div class="header-title-group">
+            <span class="header-logo">🍋</span>
+            <div>
+                <h1 class="header-title">Limonata Satış & Finansal Analiz Paneli</h1>
+                <p class="header-subtitle">Satış planı, reçete kırılımları ve kârlılık matrisi</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- ── MAIN CONTAINER ── -->
+    <div class="workspace">
+
+        <!-- ── LEFT PANEL (SCROLLABLE CONTROLS) ── -->
+        <div class="controls-panel">
+
+            <!-- Satış Planı Kartı -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><span class="card-title-dot" style="background: var(--blue);"></span> Satış Hedefleri</span>
+                    <div class="panel-zoom-ctrl">
+                        <span class="panel-zoom-label">Ölçek</span>
+                        <button class="panel-zoom-btn" onclick="adjustScale('left', -0.1)">-</button>
+                        <button class="panel-zoom-btn" onclick="adjustScale('left', 0.1)">+</button>
+                    </div>
+                </div>
+
+                <div class="input-group-title">Küçük Bardak (250ml)</div>
+                <div class="slider-row">
+                    <span class="slider-label">Adet</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="smallCount" min="0" max="300" value="80" step="5">
+                        <span class="slider-value" id="smallCountVal">—</span>
+                    </div>
+                </div>
+                <div class="slider-row">
+                    <span class="slider-label">Satış Fiyatı</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="smallPrice" min="0" max="150" value="60" step="5">
+                        <span class="slider-value" id="smallPriceVal">—</span>
+                    </div>
+                </div>
+
+                <div class="input-group-title">Büyük Bardak (400ml)</div>
+                <div class="slider-row">
+                    <span class="slider-label">Adet</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="largeCount" min="0" max="250" value="50" step="5">
+                        <span class="slider-value" id="largeCountVal">—</span>
+                    </div>
+                </div>
+                <div class="slider-row">
+                    <span class="slider-label">Satış Fiyatı</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="largePrice" min="0" max="200" value="80" step="5">
+                        <span class="slider-value" id="largePriceVal">—</span>
+                    </div>
+                </div>
+
+                <div class="input-group-title">Litrelik Şişe (1000ml)</div>
+                <div class="slider-row">
+                    <span class="slider-label">Adet</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="litreCount" min="0" max="100" value="15" step="5">
+                        <span class="slider-value" id="litreCountVal">—</span>
+                    </div>
+                </div>
+                <div class="slider-row">
+                    <span class="slider-label">Satış Fiyatı</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="litrePrice" min="0" max="400" value="150" step="10">
+                        <span class="slider-value" id="litrePriceVal">—</span>
+                    </div>
+                </div>
+
+                <!-- 5 Litrelik Şişe -->
+                <div class="input-group-title">5 Litrelik Şişe (5000ml)</div>
+                <div class="slider-row">
+                    <span class="slider-label">Adet</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="litre5Count" min="0" max="40" value="5" step="1">
+                        <span class="slider-value" id="litre5CountVal">—</span>
+                    </div>
+                </div>
+                <div class="slider-row">
+                    <span class="slider-label">Satış Fiyatı</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="litre5Price" min="0" max="1500" value="600" step="20">
+                        <span class="slider-value" id="litre5PriceVal">—</span>
+                    </div>
+                </div>
+
+                <!-- 20 Litrelik Bidon -->
+                <div class="input-group-title">20 Litrelik Bidon (20.000ml)</div>
+                <div class="slider-row">
+                    <span class="slider-label">Adet</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="litre20Count" min="0" max="25" value="2" step="1">
+                        <span class="slider-value" id="litre20CountVal">—</span>
+                    </div>
+                </div>
+                <div class="slider-row">
+                    <span class="slider-label">Satış Fiyatı</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="litre20Price" min="0" max="5000" value="2200" step="50">
+                        <span class="slider-value" id="litre20PriceVal">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reçete & Hammadde Maliyetleri -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><span class="card-title-dot" style="background: var(--yellow);"></span> Reçete ve Servis Ayarları</span>
+                </div>
+
+                <div class="input-group-title">Piyasa Fiyatları</div>
+                <div class="slider-row">
+                    <span class="slider-label">Limon Kg Fiyatı</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="lemonKgPrice" min="30" max="250" value="130" step="5">
+                        <span class="slider-value" id="lemonKgPriceVal">—</span>
+                    </div>
+                </div>
+                <div class="slider-row">
+                    <span class="slider-label">Şeker Kg Fiyatı</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="sugarKgPrice" min="10" max="60" value="16" step="1">
+                        <span class="slider-value" id="sugarKgPriceVal">—</span>
+                    </div>
+                </div>
+                <div class="slider-row">
+                    <span class="slider-label">Birim Ambalaj (Baz)</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="basePackagingCost" min="1" max="20" value="4" step="0.5">
+                        <span class="slider-value" id="basePackagingCostVal">—</span>
+                    </div>
+                </div>
+
+                <div class="input-group-title">1 Litre Limonata Tarifi</div>
+                <div class="slider-row">
+                    <span class="slider-label">Gereken Limon (g)</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="lemonPerL" min="50" max="300" value="150" step="10">
+                        <span class="slider-value" id="lemonPerLVal">—</span>
+                    </div>
+                </div>
+                <div class="slider-row">
+                    <span class="slider-label">Gereken Şeker (g)</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="sugarPerL" min="40" max="200" value="100" step="5">
+                        <span class="slider-value" id="sugarPerLVal">—</span>
+                    </div>
+                </div>
+                <div class="slider-row">
+                    <span class="slider-label">Su & Diğer Giderler</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="waterCostPerL" min="0" max="15" value="2" step="0.5">
+                        <span class="slider-value" id="waterCostPerLVal">—</span>
+                    </div>
+                </div>
+
+                <div class="input-group-title">Kayıplar & Servis</div>
+                <div class="slider-row">
+                    <span class="slider-label">Bardak İçi Buz Oranı</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="icePct" min="0" max="55" value="20" step="5">
+                        <span class="slider-value" id="icePctVal">—</span>
+                    </div>
+                </div>
+                <div class="slider-row">
+                    <span class="slider-label">Hazırlık Fire Oranı</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="wastePct" min="0" max="30" value="8" step="1">
+                        <span class="slider-value" id="wastePctVal">—</span>
+                    </div>
+                </div>
+
+                <!-- Günlük Sabit İşletme Gideri -->
+                <div class="input-group-title">Sabit İşletme Giderleri</div>
+                <div class="slider-row">
+                    <span class="slider-label">Günlük Sabit Gider</span>
+                    <div class="slider-wrapper">
+                        <input type="range" id="fixedCost" min="0" max="2500" value="200" step="50">
+                        <span class="slider-value" id="fixedCostVal">—</span>
+                    </div>
+                </div>
+
+                <!-- 1L Limonata Maliyet Kırılım Widget'ı -->
+                <div class="recipe-breakdown-card">
+                    <div class="breakdown-title">
+                        <span>1L Limonata Maliyet Kırılımı</span>
+                        <span id="breakdownTotalCost" style="color: var(--yellow);">0,00 TL</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span>🍋 Limon Payı</span>
+                        <span id="breakdownLemon">—</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span>🍬 Şeker Payı</span>
+                        <span id="breakdownSugar">—</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span>💧 Su + Diğer Sabitler</span>
+                        <span id="breakdownWater">—</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── RIGHT PANEL (SCROLLABLE DASHBOARD) ── -->
+        <div class="dashboard-panel">
+
+            <!-- Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="metric-card net-profit">
+                    <span class="metric-label">Toplam Net Kâr</span>
+                    <div class="metric-value" id="metricNetProfit">0 TL</div>
+                    <span class="metric-detail" id="metricNetProfitDetail">—</span>
+                </div>
+                <div class="metric-card revenue">
+                    <span class="metric-label">Toplam Ciro (Gelir)</span>
+                    <div class="metric-value" id="metricRevenue">0 TL</div>
+                    <span class="metric-detail" id="metricRevenueDetail">Satış geliri</span>
+                </div>
+                <div class="metric-card costs">
+                    <span class="metric-label">Toplam Maliyet</span>
+                    <div class="metric-value" id="metricCost">0 TL</div>
+                    <span class="metric-detail" id="metricCostDetail">—</span>
+                </div>
+                <div class="metric-card production">
+                    <span class="metric-label">Hazırlanacak Limonata</span>
+                    <div class="metric-value" id="metricBrutL">0,0 L</div>
+                    <span class="metric-detail" id="metricNetL">Su: 0,0 L | Limonata: 0,0 L</span>
+                </div>
+            </div>
+
+            <!-- Hacim ve Dağılım Analizi -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><span class="card-title-dot" style="background: var(--cyan);"></span> Hacimsel Dağılım Grafikleri</span>
+                    <div class="panel-zoom-ctrl">
+                        <span class="panel-zoom-label">Ölçek</span>
+                        <button class="panel-zoom-btn" onclick="adjustScale('right', -0.1)">-</button>
+                        <button class="panel-zoom-btn" onclick="adjustScale('right', 0.1)">+</button>
+                    </div>
+                </div>
+                <div class="visualizer-container">
+                    <!-- Grafik 1 -->
+                    <div class="bar-group">
+                        <div class="bar-labels">
+                            <span>Toplam Bardak Servis Hacmi</span>
+                            <span id="bar1Total" style="color: var(--text-primary);">0 L</span>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-segment lemonade-net" id="barLemonadeNet" style="width: 70%;"></div>
+                            <div class="bar-segment ice" id="barIce" style="width: 30%;"></div>
+                        </div>
+                        <div class="bar-legend">
+                            <div class="legend-item">
+                                <span class="legend-color lemonade-net"></span>
+                                <span>Limonata: <span class="legend-val" id="legendLiquid">0 L</span></span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color ice"></span>
+                                <span>Buz Hacmi: <span class="legend-val" id="legendIce">0 L</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Grafik 2 -->
+                    <div class="bar-group">
+                        <div class="bar-labels">
+                            <span>Toplam Hazırlanacak Limonata</span>
+                            <span id="bar2Total" style="color: var(--red);">0 L</span>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-segment lemonade-net" id="barLiquidNet" style="width: 90%;"></div>
+                            <div class="bar-segment waste" id="barWaste" style="width: 10%;"></div>
+                        </div>
+                        <div class="bar-legend">
+                            <div class="legend-item">
+                                <span class="legend-color lemonade-net"></span>
+                                <span>Satılacak Limonata: <span class="legend-val" id="legendLiquidNet">0 L</span></span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color waste"></span>
+                                <span>Hazırlık Kaybı (Fire): <span class="legend-val" id="legendWaste">0 L</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detaylı Ürün Analiz Tablosu -->
+            <div class="card" style="display: flex; flex-direction: column;">
+                <div class="card-header">
+                    <span class="card-title"><span class="card-title-dot" style="background: var(--purple);"></span> Ürün Bazlı Satış & Kârlılık Analizi</span>
+                </div>
+                <div class="table-card-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ürün Türü</th>
+                                <th>Satış Adedi</th>
+                                <th>Satış Fiyatı</th>
+                                <th>Birim Ambalaj</th>
+                                <th>Birim Limonata</th>
+                                <th>Birim Maliyet</th>
+                                <th>Birim Net Kâr</th>
+                                <th>Kâr Marjı (%)</th>
+                                <th>Toplam Ciro</th>
+                                <th>Toplam Net Kâr</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Table contents are dynamically rendered by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+<script>
+    const SMALL_ML = 250, LARGE_ML = 400, LITRE_ML = 1000, LITRE5_ML = 5000, LITRE20_ML = 20000;
+
+    const S = id => document.getElementById(id);
+
+    const ids = [
+        'smallCount','smallPrice',
+        'largeCount','largePrice',
+        'litreCount','litrePrice',
+        'litre5Count','litre5Price',
+        'litre20Count','litre20Price',
+        'lemonKgPrice','sugarKgPrice','basePackagingCost','lemonPerL','sugarPerL','waterCostPerL',
+        'icePct','wastePct', 'fixedCost'
+    ];
+
+    const sliders = {};
+    ids.forEach(id => sliders[id] = S(id));
+
+    function fmt(n) { return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+    function fmtD(n, d) { return n.toFixed(d).replace('.', ','); }
+
+    // Regional scale zoom state variables
+    let scaleLeft = 1.0;
+    let scaleRight = 1.0;
+
+    function adjustScale(side, val) {
+        if (side === 'left') {
+            scaleLeft = Math.max(0.8, Math.min(1.6, scaleLeft + val));
+            document.documentElement.style.setProperty('--scale-left', scaleLeft);
+        } else if (side === 'right') {
+            scaleRight = Math.max(0.8, Math.min(1.6, scaleRight + val));
+            document.documentElement.style.setProperty('--scale-right', scaleRight);
+        }
+        calculate();
+    }
+
+    function calculate() {
+        const sc = +sliders.smallCount.value;
+        const sp = +sliders.smallPrice.value;
+
+        const lc = +sliders.largeCount.value;
+        const lp = +sliders.largePrice.value;
+
+        const tc = +sliders.litreCount.value;
+        const tp = +sliders.litrePrice.value;
+
+        const t5c = +sliders.litre5Count.value;
+        const t5p = +sliders.litre5Price.value;
+
+        const t20c = +sliders.litre20Count.value;
+        const t20p = +sliders.litre20Price.value;
+
+        const lemonKgPrice = +sliders.lemonKgPrice.value;
+        const sugarKgPrice = +sliders.sugarKgPrice.value;
+        const basePack = +sliders.basePackagingCost.value;
+        const lemonPerL = +sliders.lemonPerL.value;
+        const sugarPerL = +sliders.sugarPerL.value;
+        const waterCostPerL = +sliders.waterCostPerL.value;
+
+        const icePct = +sliders.icePct.value;
+        const firePct = +sliders.wastePct.value;
+        const fixedCost = +sliders.fixedCost.value;
+
+        // Limonata litre maliyetini dinamik hesapla
+        const lemonCostPart = lemonKgPrice * (lemonPerL / 1000);
+        const sugarCostPart = sugarKgPrice * (sugarPerL / 1000);
+        const costPerL = lemonCostPart + sugarCostPart + waterCostPerL;
+
+        // Ambalaj maliyetleri baz fiyata göre oranlanıyor
+        const scc = basePack * 0.75;
+        const lcc = basePack * 1.00;
+        const tcc = basePack * 1.50;
+        const t5cc = basePack * 2.00;
+        const t20cc = basePack * 25.00;
+
+        // Slider değerlerini güncelle
+        S('smallCountVal').textContent   = `${sc} adet`;
+        S('smallPriceVal').textContent   = `${sp} TL`;
+        S('largeCountVal').textContent   = `${lc} adet`;
+        S('largePriceVal').textContent   = `${lp} TL`;
+        S('litreCountVal').textContent   = `${tc} adet`;
+        S('litrePriceVal').textContent   = `${tp} TL`;
+        S('litre5CountVal').textContent   = `${t5c} adet`;
+        S('litre5PriceVal').textContent   = `${t5p} TL`;
+        S('litre20CountVal').textContent  = `${t20c} adet`;
+        S('litre20PriceVal').textContent  = `${t20p} TL`;
+
+        S('lemonKgPriceVal').textContent = `${lemonKgPrice} TL`;
+        S('sugarKgPriceVal').textContent = `${sugarKgPrice} TL`;
+        S('basePackagingCostVal').textContent = `${fmtD(basePack, 1)} TL`;
+        S('lemonPerLVal').textContent = `${lemonPerL} g`;
+        S('sugarPerLVal').textContent = `${sugarPerL} g`;
+        S('waterCostPerLVal').textContent = `${fmtD(waterCostPerL, 1)} TL/L`;
+
+        S('wastePctVal').textContent     = `%${firePct}`;
+        S('icePctVal').textContent       = `%${icePct}`;
+        S('fixedCostVal').textContent     = `${fixedCost} TL`;
+
+        // 1 Litre Limonata Maliyet Kırılımı Detayları
+        S('breakdownTotalCost').textContent = `${fmtD(costPerL, 2)} TL`;
+        S('breakdownLemon').textContent = `${lemonPerL}g × ${lemonKgPrice} TL = ${fmtD(lemonCostPart, 2)} TL`;
+        S('breakdownSugar').textContent = `${sugarPerL}g × ${sugarKgPrice} TL = ${fmtD(sugarCostPart, 2)} TL`;
+        S('breakdownWater').textContent = `${fmtD(waterCostPerL, 2)} TL`;
+
+        // Buz Hacmi ve Sıvı Hacmi Ayırımı
+        const iceMultiplier = icePct / 100;
+        const liquidMultiplier = 1 - iceMultiplier;
+
+        // Ürün bazında net limonata tüketimi (ml)
+        const sLiquidMl = SMALL_ML * liquidMultiplier;
+        const lLiquidMl = LARGE_ML * liquidMultiplier;
+        const tLiquidMl = LITRE_ML;
+        const t5LiquidMl = LITRE5_ML;
+        const t20LiquidMl = LITRE20_ML;
+
+        // Toplam Limonata ve Buz hacimleri (Litre)
+        const netLiquidL = (sc * sLiquidMl + lc * lLiquidMl + tc * tLiquidMl + t5c * t5LiquidMl + t20c * t20LiquidMl) / 1000;
+        const totalIceL  = ((sc * SMALL_ML * iceMultiplier) + (lc * LARGE_ML * iceMultiplier)) / 1000;
+        const servedTotalVolL = netLiquidL + totalIceL;
+
+        // Fire ve Brüt Hazırlanacak Hacim
+        const fireL  = netLiquidL * (firePct / 100);
+        const brutL  = netLiquidL + fireL;
+
+        // Reçetedeki Su Hacmi Oranı Hesabı:
+        // Limon sıkma verimi: %45 (1g limon = 0.45 ml limon suyu)
+        // Şeker hacim etkisi: 1g şeker = 0.60 ml erimiş hacim
+        const lemonJuiceVolL = (lemonPerL / 1000) * 0.45;
+        const sugarVolL = (sugarPerL / 1000) * 0.60;
+        const waterRatio = 1 - lemonJuiceVolL - sugarVolL; // 1 Litre limonatadaki su payı (Litre)
+        const totalWaterL = Math.max(0, brutL * waterRatio);
+
+        // Maliyetler (Sabit gider dahil)
+        const cupCostTotal = (sc * scc) + (lc * lcc) + (tc * tcc) + (t5c * t5cc) + (t20c * t20cc);
+        const drinkCostBrut = brutL * costPerL;
+        const variableCost = cupCostTotal + drinkCostBrut;
+        const totalCost = variableCost + fixedCost;
+
+        // Toplam Gelir ve Kap Sayısı
+        const totalRevenue = (sc * sp) + (lc * lp) + (tc * tp) + (t5c * t5p) + (t20c * t20p);
+        const totalCups = sc + lc + tc + t5c + t20c;
+
+        // Birim Kâr Analizi (Değişken maliyetlere göre brüt birim kâr)
+        const sLiquidCost = (sLiquidMl / 1000) * costPerL;
+        const lLiquidCost = (lLiquidMl / 1000) * costPerL;
+        const tLiquidCost = (tLiquidMl / 1000) * costPerL;
+        const t5LiquidCost = (t5LiquidMl / 1000) * costPerL;
+        const t20LiquidCost = (t20LiquidMl / 1000) * costPerL;
+
+        const sProfitUnit = sp - scc - sLiquidCost;
+        const lProfitUnit = lp - lcc - lLiquidCost;
+        const tProfitUnit = tp - tcc - tLiquidCost;
+        const t5ProfitUnit = t5p - t5cc - t5LiquidCost;
+        const t20ProfitUnit = t20p - t20cc - t20LiquidCost;
+
+        // Toplam Birim Kârlar
+        const sProfitTotal = sc * sProfitUnit;
+        const lProfitTotal = lc * lProfitUnit;
+        const tProfitTotal = tc * tProfitUnit;
+        const t5ProfitTotal = t5c * t5ProfitUnit;
+        const t20ProfitTotal = t20c * t20ProfitUnit;
+
+        const netProfit = totalRevenue - totalCost;
+
+        // ── TİCARİ BAŞARI & BAŞA BAŞ NOKTASI HESABI ──
+        // Ortalama birim değişken kâr marjı (tüm satış karmasına göre ağırlıklı)
+        const totalVariableProfit = sProfitTotal + lProfitTotal + tProfitTotal + t5ProfitTotal + t20ProfitTotal;
+        const weightedAvgUnitProfit = totalCups > 0 ? totalVariableProfit / totalCups : 0;
+        
+        // Başa baş noktası için gereken satış adedi (Sabit Gider / Ortalama Birim Kâr)
+        let breakEvenCups = 0;
+        if (weightedAvgUnitProfit > 0 && fixedCost > 0) {
+            breakEvenCups = Math.ceil(fixedCost / weightedAvgUnitProfit);
+        }
+
+        // ── DASHBOARD GÜNCELLEMELERİ ──
+
+        // 1. Metric kartları
+        S('metricNetProfit').textContent = `${fmt(netProfit)} TL`;
+        S('metricRevenue').textContent = `${fmt(totalRevenue)} TL`;
+        S('metricCost').textContent = `${fmt(totalCost)} TL`;
+        S('metricBrutL').textContent = `${fmtD(brutL, 1)} L`;
+        
+        // Net Kâr detayı: Başa baş noktası ve kâr oranı
+        const profitMarginOverall = totalRevenue > 0 ? Math.round((netProfit / totalRevenue) * 100) : 0;
+        S('metricNetProfitDetail').innerHTML = 
+            `Marj: %${profitMarginOverall} | ` + 
+            (fixedCost > 0 ? `<b>B.B.N:</b> ${breakEvenCups} bardak` : `Sabit gider yok`);
+
+        const totalLemonCost = brutL * lemonCostPart;
+        const totalSugarCost = brutL * sugarCostPart;
+        const totalWaterCost = brutL * waterCostPerL;
+
+        S('metricRevenueDetail').textContent = `Toplam ${totalCups} kap/şişe satışı`;
+        S('metricCostDetail').innerHTML = 
+            `Sabit: ${fixedCost} TL | Değişken: ${fmt(variableCost)} TL<br>` +
+            `<span style="color: var(--text-muted); font-size: 10px;">Limon: ${fmt(totalLemonCost)} TL | Şeker: ${fmt(totalSugarCost)} TL | Su: ${fmt(totalWaterCost)} TL</span>`;
+        
+        // Üretilecek Limonata Kartındaki Su İhtiyacı
+        S('metricNetL').innerHTML = `Su: <strong>${fmtD(totalWaterL, 1)} L</strong> | Limonata: ${fmtD(brutL, 1)} L`;
+
+        // 2. Hacim Bar Grafikleri & Harici Lejantlar
+        S('bar1Total').textContent = `${fmtD(servedTotalVolL, 1)} L`;
+        S('bar2Total').textContent = `${fmtD(brutL, 1)} L`;
+
+        if (servedTotalVolL > 0) {
+            const netLimonPct = (netLiquidL / servedTotalVolL) * 100;
+            const iceBarPct = 100 - netLimonPct;
+            S('barLemonadeNet').style.width = netLimonPct + '%';
+            S('barIce').style.width = iceBarPct + '%';
+            
+            S('legendLiquid').textContent = `${fmtD(netLiquidL, 1)} L (%${Math.round(netLimonPct)})`;
+            S('legendIce').textContent = `${fmtD(totalIceL, 1)} L (%${Math.round(iceBarPct)})`;
+        } else {
+            S('barLemonadeNet').style.width = '100%'; S('barIce').style.width = '0%';
+            S('legendLiquid').textContent = '0 L'; S('legendIce').textContent = '0 L';
+        }
+
+        if (brutL > 0) {
+            const liquidNetBarPct = (netLiquidL / brutL) * 100;
+            const wasteBarPct = 100 - liquidNetBarPct;
+            S('barLiquidNet').style.width = liquidNetBarPct + '%';
+            S('barWaste').style.width = wasteBarPct + '%';
+
+            S('legendLiquidNet').textContent = `${fmtD(netLiquidL, 1)} L (%${Math.round(liquidNetBarPct)})`;
+            S('legendWaste').textContent = `${fmtD(fireL, 1)} L (%${Math.round(wasteBarPct)})`;
+        } else {
+            S('barLiquidNet').style.width = '100%'; S('barWaste').style.width = '0%';
+            S('legendLiquidNet').textContent = '0 L'; S('legendWaste').textContent = '0 L';
+        }
+
+        // 3. Detay Tablosu (Birim Kırılımlar ve Kâr Marjı eklendi)
+        const items = [
+            { 
+                name: 'Küçük Bardak', badgeClass: 'sm', ml: '250 ml', 
+                count: sc, price: sp, cupCost: scc, drinkCost: sLiquidCost,
+                uProfit: sProfitUnit, tProfit: sProfitTotal 
+            },
+            { 
+                name: 'Büyük Bardak', badgeClass: 'lg', ml: '400 ml', 
+                count: lc, price: lp, cupCost: lcc, drinkCost: lLiquidCost,
+                uProfit: lProfitUnit, tProfit: lProfitTotal 
+            },
+            { 
+                name: 'Litrelik Pet', badgeClass: 'lt', ml: '1.000 ml', 
+                count: tc, price: tp, cupCost: tcc, drinkCost: tLiquidCost,
+                uProfit: tProfitUnit, tProfit: tProfitTotal 
+            },
+            { 
+                name: '5 Litrelik Şişe', badgeClass: 'lt5', ml: '5.000 ml', 
+                count: t5c, price: t5p, cupCost: t5cc, drinkCost: t5LiquidCost,
+                uProfit: t5ProfitUnit, tProfit: t5ProfitTotal 
+            },
+            { 
+                name: '20 Litrelik Bidon', badgeClass: 'lt20', ml: '20.000 ml', 
+                count: t20c, price: t20p, cupCost: t20cc, drinkCost: t20LiquidCost,
+                uProfit: t20ProfitUnit, tProfit: t20ProfitTotal 
+            }
+        ];
+
+        let tableHtml = '';
+        items.forEach(item => {
+            const uTotalCost = item.cupCost + item.drinkCost;
+            const tCiro = item.count * item.price;
+            const marginPct = item.price > 0 ? Math.round((item.uProfit / item.price) * 100) : 0;
+            
+            tableHtml += `
+                <tr>
+                    <td><span class="table-badge ${item.badgeClass}">${item.name} (${item.ml})</span></td>
+                    <td><strong>${item.count}</strong> adet</td>
+                    <td><strong>${item.price} TL</strong></td>
+                    <td>${fmtD(item.cupCost, 1)} TL</td>
+                    <td>${fmtD(item.drinkCost, 1)} TL</td>
+                    <td>${fmtD(uTotalCost, 1)} TL</td>
+                    <td style="color: var(--green); font-weight: 600;">${fmtD(item.uProfit, 1)} TL</td>
+                    <td style="color: var(--blue); font-weight: 600;">%${marginPct}</td>
+                    <td>${fmt(tCiro)} TL</td>
+                    <td><strong style="color: var(--green);">${fmt(item.tProfit)} TL</strong></td>
+                </tr>
+            `;
+        });
+        S('tableBody').innerHTML = tableHtml;
+    }
+
+    ids.forEach(id => sliders[id].addEventListener('input', calculate));
+    calculate();
+</script>
+</body>
+</html>
