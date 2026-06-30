@@ -946,6 +946,25 @@
         return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
     }
 
+    function saveParamsToLocalStorage() {
+        for (const id of Object.values(urlMap)) {
+            const el = S(id);
+            if (el) {
+                localStorage.setItem(`limon_${id}`, el.value);
+            }
+        }
+    }
+
+    function loadParamsFromLocalStorage() {
+        for (const id of Object.values(urlMap)) {
+            const savedVal = localStorage.getItem(`limon_${id}`);
+            if (savedVal !== null) {
+                const el = S(id);
+                if (el) el.value = savedVal;
+            }
+        }
+    }
+
     function showToast(msg, icon = '✅') {
         const toast = S('toast');
         S('toastIcon').textContent = icon;
@@ -975,42 +994,86 @@
     }
 
     function saveSnapshot() {
-        const element = document.querySelector('.dashboard-panel');
+        const element = document.querySelector('.workspace');
         const btn = document.querySelector('.snapshot-btn');
         const originalText = btn.innerHTML;
         
         btn.innerHTML = '⏳ Oluşturuluyor...';
         btn.disabled = true;
 
-        // Visual correction for html2canvas capture (forces background rendering)
-        const originalBg = element.style.background;
-        element.style.background = 'var(--bg-primary)';
+        // Clone the entire workspace to capture left inputs and right outputs together
+        const clone = element.cloneNode(true);
+        clone.style.position = 'fixed';
+        clone.style.top = '0';
+        clone.style.left = '-9999px';
+        clone.style.width = '1400px'; // Wide desktop layout to fit both panels side-by-side
+        clone.style.height = 'auto';
+        clone.style.overflow = 'visible';
+        clone.style.background = 'var(--bg-primary)';
+        
+        // Preserve current scale settings
+        clone.style.setProperty('--scale-left', scaleLeft);
+        clone.style.setProperty('--scale-right', scaleRight);
 
-        html2canvas(element, {
-            backgroundColor: '#08080c',
-            scale: 2, // Retina quality
-            logging: false,
-            useCORS: true
-        }).then(canvas => {
-            element.style.background = originalBg;
-            const link = document.createElement('a');
-            link.download = 'limonata_analiz_raporu.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            showToast('Rapor görseli indirildi!', '📸');
-        }).catch(err => {
-            console.error(err);
-            element.style.background = originalBg;
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            showToast('Hata: Rapor görseli oluşturulamadı.', '❌');
-        });
+        // Strip height and overflow constraints from children inside the clone
+        const leftPanel = clone.querySelector('.controls-panel');
+        const rightPanel = clone.querySelector('.dashboard-panel');
+        
+        if (leftPanel) {
+            leftPanel.style.height = 'auto';
+            leftPanel.style.overflow = 'visible';
+            leftPanel.style.width = '360px';
+            leftPanel.style.flexShrink = '0';
+            leftPanel.style.paddingRight = '0';
+        }
+        if (rightPanel) {
+            rightPanel.style.height = 'auto';
+            rightPanel.style.overflow = 'visible';
+            rightPanel.style.flex = '1';
+            rightPanel.style.paddingRight = '0';
+        }
+
+        document.body.appendChild(clone);
+
+        // Determine height based on the taller panel
+        const leftHeight = leftPanel ? leftPanel.scrollHeight : 0;
+        const rightHeight = rightPanel ? rightPanel.scrollHeight : 0;
+        const captureHeight = Math.max(leftHeight, rightHeight) + 30;
+
+        // Brief delay for the DOM to layout the cloned tree
+        setTimeout(() => {
+            html2canvas(clone, {
+                backgroundColor: '#08080c',
+                scale: 2, // High resolution output
+                logging: false,
+                useCORS: true,
+                width: 1400,
+                height: captureHeight
+            }).then(canvas => {
+                document.body.removeChild(clone);
+
+                const link = document.createElement('a');
+                link.download = 'limonata_analiz_raporu.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showToast('Tüm rapor görseli indirildi!', '📸');
+            }).catch(err => {
+                console.error(err);
+                if (document.body.contains(clone)) {
+                    document.body.removeChild(clone);
+                }
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showToast('Hata: Rapor görseli oluşturulamadı.', '❌');
+            });
+        }, 150);
     }
 
     function calculate() {
+        saveParamsToLocalStorage();
         const sc = +sliders.smallCount.value;
         const sp = +sliders.smallPrice.value;
 
@@ -1254,7 +1317,8 @@
     }
 
     // Init Logic
-    loadParamsFromUrl();
+    loadParamsFromLocalStorage();
+    loadParamsFromUrl(); // URL params take priority over local storage
     ids.forEach(id => sliders[id].addEventListener('input', calculate));
     calculate();
 </script>
