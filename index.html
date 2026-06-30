@@ -7,6 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- html2canvas Library for Snapshot Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -72,6 +74,53 @@
             font-size: 11px;
             color: var(--text-muted);
             margin-top: 1px;
+        }
+
+        /* Header sharing buttons */
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .action-btn {
+            background: #1f1f2e;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background: var(--border-hover);
+            border-color: var(--text-secondary);
+        }
+        .action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .action-btn.share-link-btn {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+        }
+        .action-btn.share-link-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: var(--blue);
+        }
+        .action-btn.snapshot-btn {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #a7f3d0;
+        }
+        .action-btn.snapshot-btn:hover {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--green);
         }
 
         /* ── WORKSPACE (INDEPENDENT DOUBLE SCROLL) ── */
@@ -422,7 +471,7 @@
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            min-width: 860px; /* Increased to fit profit margin column */
+            min-width: 860px;
         }
         th {
             font-size: var(--fs-sm);
@@ -479,6 +528,15 @@
                 <h1 class="header-title">Limonata Satış & Finansal Analiz Paneli</h1>
                 <p class="header-subtitle">Satış planı, reçete kırılımları ve kârlılık matrisi</p>
             </div>
+        </div>
+        <!-- Share Action Controls -->
+        <div class="header-actions">
+            <button class="action-btn share-link-btn" onclick="copyShareLink()">
+                🔗 Verileri Paylaş (Link)
+            </button>
+            <button class="action-btn snapshot-btn" onclick="saveSnapshot()">
+                📸 Görsel Kaydet (PNG)
+            </button>
         </div>
     </header>
 
@@ -796,6 +854,30 @@
         </div>
     </div>
 
+    <!-- Toast Notification Element -->
+    <div id="toast" style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: var(--bg-card);
+        border: 1px solid var(--green);
+        color: var(--text-primary);
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        transform: translateY(100px);
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        z-index: 9999;
+    ">
+        <span id="toastIcon">✅</span> <span id="toastMsg">Panoya kopyalandı!</span>
+    </div>
+
 <script>
     const SMALL_ML = 250, LARGE_ML = 400, LITRE_ML = 1000, LITRE5_ML = 5000, LITRE20_ML = 20000;
 
@@ -830,6 +912,102 @@
             document.documentElement.style.setProperty('--scale-right', scaleRight);
         }
         calculate();
+    }
+
+    // ── URL PARAMETER SHARING LOGIC ──
+    const urlMap = {
+        sc: 'smallCount', sp: 'smallPrice',
+        lc: 'largeCount', lp: 'largePrice',
+        tc: 'litreCount', tp: 'litrePrice',
+        t5c: 'litre5Count', t5p: 'litre5Price',
+        t20c: 'litre20Count', t20p: 'litre20Price',
+        lk: 'lemonKgPrice', sk: 'sugarKgPrice', bp: 'basePackagingCost',
+        lpl: 'lemonPerL', spl: 'sugarPerL', wcl: 'waterCostPerL',
+        ip: 'icePct', wp: 'wastePct', fc: 'fixedCost'
+    };
+
+    function loadParamsFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        for (const [key, id] of Object.entries(urlMap)) {
+            if (params.has(key)) {
+                const val = params.get(key);
+                const el = S(id);
+                if (el) el.value = val;
+            }
+        }
+    }
+
+    function generateShareUrl() {
+        const params = new URLSearchParams();
+        for (const [key, id] of Object.entries(urlMap)) {
+            const el = S(id);
+            if (el) params.set(key, el.value);
+        }
+        return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+    }
+
+    function showToast(msg, icon = '✅') {
+        const toast = S('toast');
+        S('toastIcon').textContent = icon;
+        S('toastMsg').textContent = msg;
+        toast.style.transform = 'translateY(0)';
+        toast.style.opacity = '1';
+        setTimeout(() => {
+            toast.style.transform = 'translateY(100px)';
+            toast.style.opacity = '0';
+        }, 3000);
+    }
+
+    function copyShareLink() {
+        const shareUrl = generateShareUrl();
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            showToast('Paylaşım linki panoya kopyalandı!');
+        }).catch(err => {
+            // Fallback for older browsers
+            const el = document.createElement('textarea');
+            el.value = shareUrl;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast('Paylaşım linki panoya kopyalandı!');
+        });
+    }
+
+    function saveSnapshot() {
+        const element = document.querySelector('.dashboard-panel');
+        const btn = document.querySelector('.snapshot-btn');
+        const originalText = btn.innerHTML;
+        
+        btn.innerHTML = '⏳ Oluşturuluyor...';
+        btn.disabled = true;
+
+        // Visual correction for html2canvas capture (forces background rendering)
+        const originalBg = element.style.background;
+        element.style.background = 'var(--bg-primary)';
+
+        html2canvas(element, {
+            backgroundColor: '#08080c',
+            scale: 2, // Retina quality
+            logging: false,
+            useCORS: true
+        }).then(canvas => {
+            element.style.background = originalBg;
+            const link = document.createElement('a');
+            link.download = 'limonata_analiz_raporu.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            showToast('Rapor görseli indirildi!', '📸');
+        }).catch(err => {
+            console.error(err);
+            element.style.background = originalBg;
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            showToast('Hata: Rapor görseli oluşturulamadı.', '❌');
+        });
     }
 
     function calculate() {
@@ -921,11 +1099,9 @@
         const brutL  = netLiquidL + fireL;
 
         // Reçetedeki Su Hacmi Oranı Hesabı:
-        // Limon sıkma verimi: %45 (1g limon = 0.45 ml limon suyu)
-        // Şeker hacim etkisi: 1g şeker = 0.60 ml erimiş hacim
         const lemonJuiceVolL = (lemonPerL / 1000) * 0.45;
         const sugarVolL = (sugarPerL / 1000) * 0.60;
-        const waterRatio = 1 - lemonJuiceVolL - sugarVolL; // 1 Litre limonatadaki su payı (Litre)
+        const waterRatio = 1 - lemonJuiceVolL - sugarVolL; 
         const totalWaterL = Math.max(0, brutL * waterRatio);
 
         // Maliyetler (Sabit gider dahil)
@@ -938,7 +1114,7 @@
         const totalRevenue = (sc * sp) + (lc * lp) + (tc * tp) + (t5c * t5p) + (t20c * t20p);
         const totalCups = sc + lc + tc + t5c + t20c;
 
-        // Birim Kâr Analizi (Değişken maliyetlere göre brüt birim kâr)
+        // Birim Kâr Analizi
         const sLiquidCost = (sLiquidMl / 1000) * costPerL;
         const lLiquidCost = (lLiquidMl / 1000) * costPerL;
         const tLiquidCost = (tLiquidMl / 1000) * costPerL;
@@ -960,12 +1136,10 @@
 
         const netProfit = totalRevenue - totalCost;
 
-        // ── TİCARİ BAŞARI & BAŞA BAŞ NOKTASI HESABI ──
-        // Ortalama birim değişken kâr marjı (tüm satış karmasına göre ağırlıklı)
+        // ── TİCARİ BAŞARI & BAŞA BAŞ HESABI ──
         const totalVariableProfit = sProfitTotal + lProfitTotal + tProfitTotal + t5ProfitTotal + t20ProfitTotal;
         const weightedAvgUnitProfit = totalCups > 0 ? totalVariableProfit / totalCups : 0;
         
-        // Başa baş noktası için gereken satış adedi (Sabit Gider / Ortalama Birim Kâr)
         let breakEvenCups = 0;
         if (weightedAvgUnitProfit > 0 && fixedCost > 0) {
             breakEvenCups = Math.ceil(fixedCost / weightedAvgUnitProfit);
@@ -979,22 +1153,21 @@
         S('metricCost').textContent = `${fmt(totalCost)} TL`;
         S('metricBrutL').textContent = `${fmtD(brutL, 1)} L`;
         
-        // Net Kâr detayı: Başa baş noktası ve kâr oranı
         const profitMarginOverall = totalRevenue > 0 ? Math.round((netProfit / totalRevenue) * 100) : 0;
         S('metricNetProfitDetail').innerHTML = 
             `Marj: %${profitMarginOverall} | ` + 
             (fixedCost > 0 ? `<b>B.B.N:</b> ${breakEvenCups} bardak` : `Sabit gider yok`);
 
+        S('metricRevenueDetail').textContent = `Toplam ${totalCups} kap/şişe satışı`;
+        
+        // Cost details breakdown
         const totalLemonCost = brutL * lemonCostPart;
         const totalSugarCost = brutL * sugarCostPart;
         const totalWaterCost = brutL * waterCostPerL;
-
-        S('metricRevenueDetail').textContent = `Toplam ${totalCups} kap/şişe satışı`;
         S('metricCostDetail').innerHTML = 
             `Sabit: ${fixedCost} TL | Değişken: ${fmt(variableCost)} TL<br>` +
             `<span style="color: var(--text-muted); font-size: 10px;">Limon: ${fmt(totalLemonCost)} TL | Şeker: ${fmt(totalSugarCost)} TL | Su: ${fmt(totalWaterCost)} TL</span>`;
         
-        // Üretilecek Limonata Kartındaki Su İhtiyacı
         S('metricNetL').innerHTML = `Su: <strong>${fmtD(totalWaterL, 1)} L</strong> | Limonata: ${fmtD(brutL, 1)} L`;
 
         // 2. Hacim Bar Grafikleri & Harici Lejantlar
@@ -1027,7 +1200,7 @@
             S('legendLiquidNet').textContent = '0 L'; S('legendWaste').textContent = '0 L';
         }
 
-        // 3. Detay Tablosu (Birim Kırılımlar ve Kâr Marjı eklendi)
+        // 3. Detay Tablosu (Birim Kırılımlar ve Kâr Marjı)
         const items = [
             { 
                 name: 'Küçük Bardak', badgeClass: 'sm', ml: '250 ml', 
@@ -1080,6 +1253,8 @@
         S('tableBody').innerHTML = tableHtml;
     }
 
+    // Init Logic
+    loadParamsFromUrl();
     ids.forEach(id => sliders[id].addEventListener('input', calculate));
     calculate();
 </script>
