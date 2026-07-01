@@ -1427,6 +1427,7 @@
         clone.style.display = 'flex';
         clone.style.setProperty('flex-direction', 'row', 'important');
         clone.style.setProperty('width', '1400px', 'important');
+        clone.style.setProperty('max-width', 'none', 'important'); // Prevent mobile viewport width constraint from squeezing the clone
         clone.style.height = 'auto';
         clone.style.overflow = 'visible';
         clone.style.background = 'var(--bg-primary)';
@@ -1443,6 +1444,7 @@
             leftPanel.style.height = 'auto';
             leftPanel.style.overflow = 'visible';
             leftPanel.style.setProperty('width', '360px', 'important');
+            leftPanel.style.setProperty('max-width', 'none', 'important');
             leftPanel.style.flexShrink = '0';
             leftPanel.style.paddingRight = '0';
         }
@@ -1450,6 +1452,7 @@
             rightPanel.style.height = 'auto';
             rightPanel.style.overflow = 'visible';
             rightPanel.style.setProperty('width', '980px', 'important');
+            rightPanel.style.setProperty('max-width', 'none', 'important');
             rightPanel.style.flex = '1';
             rightPanel.style.paddingRight = '0';
         }
