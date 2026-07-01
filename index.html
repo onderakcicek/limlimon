@@ -672,10 +672,10 @@
         /* ── RESPONSIVE ADAPTATIONS (MOBILE STACKING) ── */
         @media (max-width: 1100px) {
             body { overflow-y: auto; height: auto; }
-            .workspace { flex-direction: column; height: auto; overflow: visible; }
-            .controls-panel { width: 100%; height: auto; overflow: visible; }
-            .dashboard-panel { width: 100%; height: auto; overflow: visible; }
-            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+            .workspace:not(.is-capturing) { flex-direction: column; height: auto; overflow: visible; }
+            .workspace:not(.is-capturing) .controls-panel { width: 100%; height: auto; overflow: visible; }
+            .workspace:not(.is-capturing) .dashboard-panel { width: 100%; height: auto; overflow: visible; }
+            .workspace:not(.is-capturing) .metrics-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 768px) {
             header {
@@ -732,8 +732,8 @@
             }
         }
         @media (max-width: 600px) {
-            .metrics-grid { grid-template-columns: 1fr; }
-            .visualizer-container { grid-template-columns: 1fr; }
+            .workspace:not(.is-capturing) .metrics-grid { grid-template-columns: 1fr; }
+            .workspace:not(.is-capturing) .visualizer-container { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -1420,6 +1420,7 @@
 
         // Clone the entire workspace to capture left inputs and right outputs together
         const clone = element.cloneNode(true);
+        clone.classList.add('is-capturing');
         clone.style.position = 'fixed';
         clone.style.top = '0';
         clone.style.left = '-9999px';
